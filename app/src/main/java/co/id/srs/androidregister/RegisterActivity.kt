@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.Toast
 import com.android.volley.Response
@@ -20,7 +21,7 @@ import java.util.*
 
 class RegisterActivity : AppCompatActivity() {
 
-    val url = ""
+    val url = "https://test-domain.srs-ssms.com/register.php"
     private var birth = ""
     private var gender = "na"
 
@@ -34,6 +35,8 @@ class RegisterActivity : AppCompatActivity() {
 
         val dateList = (1..31).map { "$it" }
         val yearList = (2021 downTo 1950).map { "$it" }
+
+        mobile.inputType
 
         spMonth.setItems("", "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec",)
         spDate.setItems(dateList)
@@ -76,7 +79,6 @@ class RegisterActivity : AppCompatActivity() {
                         birth,
                         gender,
                         email.text.toString())
-                    CURL(mobile.text.toString().replace(" ", "%20"), firstname.text.toString().replace(" ", "%20"), lastname.text.toString().replace(" ", "%20"), birth.replace(" ", "%20"), gender.replace(" ", ""), email.text.toString().replace(" ", "")).execute()
                 } catch (e: Exception) {
                     Toasty.error(this, "Terjadi kesalahan, hubungi pengembang", Toasty.LENGTH_LONG, true).show()
                 }
@@ -91,21 +93,34 @@ class RegisterActivity : AppCompatActivity() {
             try {
                 val jObj = JSONObject(response)
                 val success = jObj.getInt("success")
+                val message = jObj.getString("message")
 
                 // Check for error node in json
                 if (success == 1) {
                     progressBarHolderRegister.visibility = View.GONE
-                    AlertDialogUtility.alertDialog(this, "Data telah masuk, tunggu konfirmasi dari admin kami", "success.json")
-                    mobile.setText("")
-                    TODO("Grayed out")
-
+                    AlertDialogUtility.alertDialog(this, message, "success.json")
+                    tvLogin.visibility = View.VISIBLE
+                    bt_login.visibility = View.VISIBLE
+                    mobilelogin.visibility = View.VISIBLE
+                    emaillogin.visibility = View.VISIBLE
+                    textView.visibility = View.GONE
+                    mobile.visibility = View.GONE
+                    firstname.visibility = View.GONE
+                    lastname.visibility = View.GONE
+                    dateofbirth.visibility = View.GONE
+                    radio_gender.visibility = View.GONE
+                    spMonth.visibility = View.GONE
+                    spYear.visibility = View.GONE
+                    spDate.visibility = View.GONE
+                    email.visibility = View.GONE
+                    bt_reg.visibility = View.GONE
                 } else {
                     progressBarHolderRegister.visibility = View.GONE
                     Toast.makeText(applicationContext,
                         jObj.getString("message"), Toast.LENGTH_LONG).show()
                 }
             } catch (e: JSONException) {
-                AlertDialogUtility.withSingleAction(this,"Ulang", "Error: $e", "warning.json") {
+                AlertDialogUtility.withSingleAction(this,"TRY AGAIN", "Error: $e", "warning.json") {
                     val intent = Intent(this@RegisterActivity, RegisterActivity::class.java)
                     startActivity(intent)
                 }
@@ -113,7 +128,7 @@ class RegisterActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         }, Response.ErrorListener { error ->
-            AlertDialogUtility.withSingleAction(this,"Ulang", "Registrasi gagal, gunakan jaringan yang stabil untuk registrasi!", "network_error.json") {
+            AlertDialogUtility.withSingleAction(this,"TRY AGAIN", "Nerwork error", "network_error.json") {
                 val intent = Intent(this@RegisterActivity, RegisterActivity::class.java)
                 startActivity(intent)
             }
@@ -134,43 +149,6 @@ class RegisterActivity : AppCompatActivity() {
         // Adding request to request queue
         val queue = Volley.newRequestQueue(this)
         queue.add(strReq)
-    }
-
-    class CURL(
-        etNamaLengkap: String,
-        etDepartemen: String,
-        etLokasiKerja: String,
-        etJabatan: String,
-        etNoHP: String,
-        etEmail: String
-    ) : AsyncTask<Void, Void, String>() {
-
-        val namaLengkap = "Nama=$etNamaLengkap"
-        val departemen = "%0ADepartemen=$etDepartemen"
-        val lokasi_kerja = "%0ALokasiKerja=$etLokasiKerja"
-        val jabatan = "%0AJabatan=$etJabatan"
-        val noHP = "%0ANoHP=$etNoHP"
-        val email = "%0AEmail=$etEmail"
-        var returnValue: Int? = null
-        val baseURL = "https://api.telegram.org/bot1115531097:AAHOgChELkW3Kk2PtC1VvOt4BbhlZYju8l8/sendMessage?parse_mode=markdown&chat_id=-397663601&text="
-        val command = "curl POST $baseURL$namaLengkap$departemen$lokasi_kerja$jabatan$noHP$email"
-        val process: Process = Runtime.getRuntime().exec(command)
-
-        override fun doInBackground(vararg params: Void?): String? {
-            process.inputStream.read()
-            process.waitFor()
-            return null
-        }
-
-        override fun onPreExecute() {
-            super.onPreExecute()
-        }
-
-        override fun onPostExecute(result: String?) {
-            process.inputStream.close()
-            returnValue = process.exitValue()
-            super.onPostExecute(result)
-        }
     }
 
     fun onRadioButtonClicked(view: View) {

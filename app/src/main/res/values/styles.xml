@@ -12,8 +12,6 @@
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">#ffffff</item>
         <item name="actionBarSize">45dip</item>
-
-        <item name="android:fontFamily">@font/helvetica</item>
     </style>
 
     <style name="AppTheme1" parent="Theme.AppCompat.Light.NoActionBar">
@@ -44,7 +42,6 @@
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">#ffffff</item>
         <item name="actionBarSize">45dip</item>
-        <item name="android:fontFamily">@font/helvetica</item>
     </style>
 
     <style name="FullScreen" parent="@style/Theme.MaterialComponents.Light.NoActionBar">
